@@ -1,0 +1,2507 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "Simplified N-central API",
+    "description": "This API specification has been simplified to remove authentication steps, handled by an intermediary Azure Function App.",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "https://azurefunctionapp.azurewebsites.net/api",
+      "description": "Proxy server that handles authentication and token management"
+    }
+  ],
+  "paths": {
+    "/api/scheduled-tasks/direct": {
+      "post": {
+        "tags": [
+          "Scheduled Tasks"
+        ],
+        "summary": "Create a direct-support schedule task.",
+        "description": "Create a direct-support schedule task against a specific device.\nAs a direct-support schedule task, the task will be executed immediately against a single device.\nFor more information about the request payload,\nplease review below the schema of the relevant data type:\n    <a href=\"#model-DirectSuppo",
+        "operationId": "createRemoteExecutionTaskDirect",
+        "requestBody": {
+          "description": "The task to be created.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DirectSupportTask"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful creation of direct support task.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ScheduledTaskCreateResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication Failure.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api": {
+      "get": {
+        "tags": [
+          "API-Service"
+        ],
+        "summary": "List links to other endpoints.",
+        "operationId": "apiRoot",
+        "responses": {
+          "200": {
+            "description": "Successful.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LinksResponse"
+                },
+                "example": {
+                  "_links": {
+                    "root": "/api",
+                    "server-info": "/api/server-info",
+                    "health": "/api/health",
+                    "auth": "/api/auth",
+                    "customers": "/api/customers",
+                    "devices": "/api/devices",
+                    "scheduled-tasks": "/api/scheduled-tasks"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/sites": {
+      "get": {
+        "tags": [
+          "Organization Units"
+        ],
+        "summary": "PREVIEW: Retrieve a list of all sites.",
+        "description": "Returns a list of all sites.<br/><br/><br/><b>NOTE:</b>This endpoint is currently in a preview stage.",
+        "operationId": "listSites",
+        "parameters": [
+          {
+            "name": "pageNumber",
+            "in": "query",
+            "description": "The page number to retrieve. Starts at 1. If not provided, defaults to the first page.",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "description": "The number of items to retrieve per page. Set to -1 to retrieve all items without pagination (if enabled).",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "sortBy",
+            "in": "query",
+            "description": "The name of a field to sort the result by.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sortOrder",
+            "in": "query",
+            "description": "The order in which the order will follow -- case insensitive and default to ASC.",
+            "schema": {
+              "type": "string",
+              "default": "ASC",
+              "enum": [
+                "asc",
+                "ascending",
+                "natural",
+                "desc",
+                "descending",
+                "reverse"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful retrieval of sites.",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ListResponseSite"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication Failure.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/service-orgs": {
+      "get": {
+        "tags": [
+          "Organization Units"
+        ],
+        "summary": "PREVIEW: Retrieve a list of all service organizations.",
+        "description": "Returns a list of all service organizations.<br/><br/><br/><b>NOTE:</b>This endpoint is currently in a preview stage.",
+        "operationId": "listServiceOrganizations",
+        "parameters": [
+          {
+            "name": "pageNumber",
+            "in": "query",
+            "description": "The page number to retrieve. Starts at 1. If not provided, defaults to the first page.",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "description": "The number of items to retrieve per page. Set to -1 to retrieve all items without pagination (if enabled).",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "sortBy",
+            "in": "query",
+            "description": "The name of a field to sort the result by.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sortOrder",
+            "in": "query",
+            "description": "The order in which the order will follow -- case insensitive and default to ASC.",
+            "schema": {
+              "type": "string",
+              "default": "ASC",
+              "enum": [
+                "asc",
+                "ascending",
+                "natural",
+                "desc",
+                "descending",
+                "reverse"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful retrieval of ervice organizations.",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ListResponseServiceOrganization"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication Failure.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/server-info": {
+      "get": {
+        "tags": [
+          "API-Service"
+        ],
+        "summary": "Return version information of the running API-Service.",
+        "operationId": "apiRoot_1",
+        "responses": {
+          "200": {
+            "description": "Successful.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthValidateResponse"
+                },
+                "example": {
+                  "jvmVersion": "17.0.9",
+                  "version": "3.1.0",
+                  "ncentral": null
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication Failure.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/scheduled-tasks": {
+      "get": {
+        "tags": [
+          "Scheduled Tasks"
+        ],
+        "summary": "List the task-related links.",
+        "operationId": "taskRoot",
+        "responses": {
+          "200": {
+            "description": "Successful.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LinksResponse"
+                },
+                "example": {
+                  "_links": {
+                    "direct-support-task": "/api/scheduled-tasks/direct"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication Failure.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/scheduled-tasks/{taskId}": {
+      "get": {
+        "tags": [
+          "Scheduled Tasks"
+        ],
+        "summary": "Retrieves general information for a given task.",
+        "description": "Retrieves general information for a given task using the task ID.",
+        "operationId": "getTask",
+        "parameters": [
+          {
+            "name": "taskId",
+            "in": "path",
+            "description": "ID of the task for which information is to be retrieved.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful retrieval of information.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ScheduledTaskInfoResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/scheduled-tasks/{taskId}/status": {
+      "get": {
+        "tags": [
+          "Scheduled Tasks"
+        ],
+        "summary": "Retrieves aggregated status for a given task.",
+        "description": "Retrieves the aggregated status associated with a given task using the task ID.",
+        "operationId": "getTaskStatus",
+        "parameters": [
+          {
+            "name": "taskId",
+            "in": "path",
+            "description": "ID of the task for which aggregated status needs to be fetched.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful retrieval of aggregated status.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ScheduledTaskAggregatedStatusResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication Failure.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Device Id not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/scheduled-tasks/{taskId}/status/details": {
+      "get": {
+        "tags": [
+          "Scheduled Tasks"
+        ],
+        "summary": "Retrieves detailed status per device for a given task.",
+        "description": "Retrieve a list of detailed statuses for each device associated with the given task using the task ID.",
+        "operationId": "listTaskStatusDetails",
+        "parameters": [
+          {
+            "name": "taskId",
+            "in": "path",
+            "description": "ID of the task for which detailed status needs to be fetched.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful retrieval of status details.",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ListResponseDetailsResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication Failure.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Device Id not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/org-units": {
+      "get": {
+        "tags": [
+          "Organization Units"
+        ],
+        "summary": "PREVIEW: Retrieve a list of all organization units.",
+        "description": "Returns a list of all organization units.<br/><br/><b>NOTE:</b>This endpoint is currently in a preview stage.",
+        "operationId": "listOrganizationUnits",
+        "parameters": [
+          {
+            "name": "pageNumber",
+            "in": "query",
+            "description": "The page number to retrieve. Starts at 1. If not provided, defaults to the first page.",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "description": "The number of items to retrieve per page. Set to -1 to retrieve all items without pagination (if enabled).",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "sortBy",
+            "in": "query",
+            "description": "The name of a field to sort the result by.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sortOrder",
+            "in": "query",
+            "description": "The order in which the order will follow -- case insensitive and default to ASC.",
+            "schema": {
+              "type": "string",
+              "default": "ASC",
+              "enum": [
+                "asc",
+                "ascending",
+                "natural",
+                "desc",
+                "descending",
+                "reverse"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful retrieval of organization units.",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ListResponseOrganizationUnit"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication Failure.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/health": {
+      "get": {
+        "tags": [
+          "API-Service"
+        ],
+        "summary": "Return the start and current time of the server. This indicates that the server is running.",
+        "operationId": "health",
+        "responses": {
+          "200": {
+            "description": "Successful.",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/Health"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/devices": {
+      "get": {
+        "tags": [
+          "Devices"
+        ],
+        "summary": "Retrieve the list of devices.",
+        "description": "Retrieves the list of devices from N-central for the logged in user.",
+        "operationId": "listDevices",
+        "parameters": [
+          {
+            "name": "pageNumber",
+            "in": "query",
+            "description": "The page number to retrieve. Starts at 1. If not provided, defaults to the first page.",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "description": "The number of items to retrieve per page. Set to -1 to retrieve all items without pagination (if enabled).",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful retrieval of device list.",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/QueryResponseDevice"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication Failure.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/devices/{deviceId}": {
+      "get": {
+        "tags": [
+          "Devices"
+        ],
+        "summary": "Retrieve a device by ID.",
+        "description": "Retrieves a device with a specific id.",
+        "operationId": "getDeviceById",
+        "parameters": [
+          {
+            "name": "deviceId",
+            "in": "path",
+            "description": "ID of the device for which information needs to be fetched.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful retrieval of device information.",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeviceResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication Failure.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Device Id not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/devices/{deviceId}/scheduled-tasks": {
+      "get": {
+        "tags": [
+          "Device Tasks"
+        ],
+        "summary": "Retrieve tasks for a specific device.",
+        "description": "Retrieves a list of tasks associated with a specified device using the device ID.",
+        "operationId": "listTasksForDevice",
+        "parameters": [
+          {
+            "name": "deviceId",
+            "in": "path",
+            "description": "ID of the device for which the tasks need to be fetched.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful retrieval of tasks.",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ListResponseTaskStatusResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication Failure.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Device Id not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/devices/{deviceId}/assets": {
+      "get": {
+        "tags": [
+          "Devices"
+        ],
+        "summary": "PREVIEW: Retrieve Asset Information for a device by ID.",
+        "description": "Retrieves complete asset information for a device with a specific id.<br/><br/><b>NOTE:</b>This endpoint is currently in a preview stage. <br/><b>Also See:<b> <a href=\"#model-DeviceAssetInfoResponse\">DeviceAssetInfoResponse</a> ",
+        "operationId": "getAssetInfo",
+        "parameters": [
+          {
+            "name": "deviceId",
+            "in": "path",
+            "description": "ID of the device for which asset information needs to be fetched.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful retrieval of device asset information.",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeviceAssetInfoResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication Failure.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Device Id not found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/customers": {
+      "get": {
+        "tags": [
+          "Organization Units"
+        ],
+        "summary": "Retrieve a list of all customers.",
+        "description": "Returns a list of all customers.",
+        "operationId": "listCustomers",
+        "parameters": [
+          {
+            "name": "pageNumber",
+            "in": "query",
+            "description": "The page number to retrieve. Starts at 1. If not provided, defaults to the first page.",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "description": "The number of items to retrieve per page. Set to -1 to retrieve all items without pagination (if enabled).",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "sortBy",
+            "in": "query",
+            "description": "The name of a field to sort the result by.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sortOrder",
+            "in": "query",
+            "description": "The order in which the order will follow -- case insensitive and default to ASC.",
+            "schema": {
+              "type": "string",
+              "default": "ASC",
+              "enum": [
+                "asc",
+                "ascending",
+                "natural",
+                "desc",
+                "descending",
+                "reverse"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful retrieval of customers.",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ListResponseCustomer"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication Failure.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "ErrorResponse": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "message": {
+            "type": "string"
+          }
+        },
+        "description": "Error response",
+        "example": {
+          "timestamp": 1695842799475,
+          "status": 400,
+          "error": "Bad Request",
+          "path": "/api/auth/authenticate"
+        }
+      },
+      "DirectSupportTask": {
+        "required": [
+          "credential",
+          "customerId",
+          "deviceId",
+          "itemId",
+          "name",
+          "taskType"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "The name of the task. This value must be unique."
+          },
+          "itemId": {
+            "type": "integer",
+            "description": "The ID of the remote execution item. The item ID can be found in the N-central UI (\"Configuration\" -> \"Scheduled Tasks\" -> \"Script/software Repository\") and it must have \"Enable API\" flag \"ON\" (see in the N-central UI).",
+            "format": "int32"
+          },
+          "taskType": {
+            "type": "string",
+            "description": "The type of the task. Supported values: AutomationPolicy, Script or MacScript.",
+            "enum": [
+              "AutomationPolicy",
+              "Script",
+              "MacScript"
+            ]
+          },
+          "customerId": {
+            "type": "integer",
+            "description": "The ID of the customer. The customer ID can be obtained using the <a href=\"#operations-Customers-listCustomers\">'GET /api/customers'</a> endpoint.",
+            "format": "int32"
+          },
+          "deviceId": {
+            "type": "integer",
+            "description": "The ID of the device. The device ID can be obtained using the <a href=\"#operations-Devices-getDeviceById\">'GET /api/devices'</a> endpoint.",
+            "format": "int32"
+          },
+          "credential": {
+            "$ref": "#/components/schemas/ScheduledTaskCredential"
+          },
+          "parameters": {
+            "type": "array",
+            "description": "The credential setting for the task.\nFor more information about the fields of <a href=\"#model-ScheduledTaskParameter\">ScheduledTaskParameter</a>,\n    please review its schema below.\n",
+            "items": {
+              "$ref": "#/components/schemas/ScheduledTaskParameter"
+            }
+          }
+        },
+        "description": "'Direct support' scheduled task.",
+        "example": {
+          "name": "Test Task",
+          "itemId": 1,
+          "taskType": "Script",
+          "customerId": 100,
+          "deviceId": 987654321,
+          "credential": {
+            "type": "LocalSystem",
+            "username": null,
+            "password": null
+          },
+          "parameters": [
+            {
+              "name": "CommandLine",
+              "value": "killprocess.vbs /process:33022"
+            }
+          ]
+        }
+      },
+      "ScheduledTaskCredential": {
+        "required": [
+          "type"
+        ],
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "description": "The credential type. Supported values: LocalSystem, DeviceCredentials and CustomCredentials.",
+            "enum": [
+              "LocalSystem",
+              "DeviceCredentials",
+              "CustomCredentials"
+            ]
+          },
+          "username": {
+            "type": "string",
+            "description": "The username (used with 'CustomCredentials' type)."
+          },
+          "password": {
+            "type": "string",
+            "description": "The password (used with 'CustomCredentials' type)."
+          }
+        },
+        "description": "Credentials for a remote execution task.",
+        "example": {
+          "type": "CustomCredentials",
+          "username": "admin",
+          "password": "pass"
+        }
+      },
+      "ScheduledTaskParameter": {
+        "required": [
+          "description",
+          "name",
+          "type"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "The parameter name. The value must not be empty."
+          },
+          "value": {
+            "type": "string",
+            "description": "The parameter value."
+          },
+          "description": {
+            "type": "string",
+            "description": "The parameter name. The value must not be empty."
+          },
+          "type": {
+            "type": "string",
+            "description": "The parameter type. Supported values: string, integer, boolean, text, dword.",
+            "enum": [
+              "string",
+              "integer",
+              "boolean",
+              "text",
+              "dword"
+            ]
+          }
+        },
+        "description": "Input Parameters of the task to be executed, whether it is an Automation Policy, a script, a MAC script, etc.\nParameters for an automation policy are defined according to the script repository item associated with\na given scheduled task.\nFor a script or a MAC script, the whole command line can be sp",
+        "example": "   {\n     \"name\": \"CommandLine\",\n     \"value\": \"killprocess.vbs /process:33022\",\n     \"description\": \"Command line to execute\",\n     \"type\": \"string\",\n   }\n"
+      },
+      "ScheduledTaskCreateResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/TaskCreate"
+          },
+          "_links": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string",
+              "description": "Links to related endpoints."
+            },
+            "description": "Links to related endpoints."
+          }
+        },
+        "description": "Response for a task-creation request",
+        "example": {
+          "data": {
+            "taskId": 1985975
+          },
+          "_links": {
+            "task": "/api/scheduled-tasks/{1985975}"
+          }
+        }
+      },
+      "TaskCreate": {
+        "type": "object",
+        "properties": {
+          "taskId": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "description": "Information about a newly created task",
+        "example": {
+          "taskId": 1985975
+        }
+      },
+      "LinksResponse": {
+        "type": "object",
+        "properties": {
+          "_links": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "ListResponseSite": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Site"
+            }
+          },
+          "totalItems": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "Site": {
+        "type": "object",
+        "properties": {
+          "siteId": {
+            "type": "string",
+            "description": "The ID of the organization unit."
+          },
+          "siteName": {
+            "type": "string",
+            "description": "The name of the organization unit."
+          },
+          "orgUnitType": {
+            "type": "string",
+            "description": "The type of the organization unit (SYSTEM, SO, CUSTOMER or SITE)."
+          },
+          "parentId": {
+            "type": "string",
+            "description": "The ID of the parent organization unit."
+          },
+          "city": {
+            "type": "string",
+            "description": "City where the organization unit is located."
+          },
+          "stateProv": {
+            "type": "string",
+            "description": "State or province where the organization unit is located."
+          },
+          "country": {
+            "type": "string",
+            "description": "Country where the organization unit is located."
+          },
+          "postalCode": {
+            "type": "string",
+            "description": "Postal code of the organization unit location."
+          },
+          "contactEmail": {
+            "type": "string",
+            "description": "Contact email for the organization unit."
+          },
+          "isSystem": {
+            "type": "boolean"
+          },
+          "isServiceOrg": {
+            "type": "boolean"
+          }
+        },
+        "description": "Data object for service organiztion organization.",
+        "example": {
+          "siteId": "100",
+          "siteName": "N-able",
+          "orgUnitType": "SO",
+          "parentId": "50",
+          "city": "Ottawa",
+          "stateProv": "Ontario",
+          "country": "Canada",
+          "county": null,
+          "postalCode": "A1A 1A1",
+          "contactEmail": "admin@n-able.com"
+        }
+      },
+      "ListResponseServiceOrganization": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ServiceOrganization"
+            }
+          },
+          "totalItems": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "ServiceOrganization": {
+        "type": "object",
+        "properties": {
+          "soId": {
+            "type": "string",
+            "description": "The ID of the organization unit."
+          },
+          "soName": {
+            "type": "string",
+            "description": "The name of the organization unit."
+          },
+          "orgUnitType": {
+            "type": "string",
+            "description": "The type of the organization unit (SYSTEM, SO, CUSTOMER or SITE)."
+          },
+          "parentId": {
+            "type": "string",
+            "description": "The ID of the parent organization unit."
+          },
+          "city": {
+            "type": "string",
+            "description": "City where the organization unit is located."
+          },
+          "stateProv": {
+            "type": "string",
+            "description": "State or province where the organization unit is located."
+          },
+          "country": {
+            "type": "string",
+            "description": "Country where the organization unit is located."
+          },
+          "postalCode": {
+            "type": "string",
+            "description": "Postal code of the organization unit location."
+          },
+          "contactEmail": {
+            "type": "string",
+            "description": "Contact email for the organization unit."
+          },
+          "isSystem": {
+            "type": "boolean"
+          },
+          "isServiceOrg": {
+            "type": "boolean"
+          }
+        },
+        "description": "Data object for service organiztion organization.",
+        "example": {
+          "soId": "100",
+          "soName": "N-able",
+          "orgUnitType": "SO",
+          "parentId": "50",
+          "city": "Ottawa",
+          "stateProv": "Ontario",
+          "country": "Canada",
+          "county": null,
+          "postalCode": "A1A 1A1",
+          "contactEmail": "admin@n-able.com"
+        }
+      },
+      "AuthValidateResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          }
+        },
+        "description": "Response for validating the authentication access token.",
+        "example": {
+          "message": "The token is valid."
+        }
+      },
+      "ScheduledTaskInfoResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/TaskInfo"
+          },
+          "_links": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string",
+              "description": "Links to related endpoints."
+            },
+            "description": "Links to related endpoints."
+          }
+        },
+        "description": "Task information response.",
+        "example": {
+          "data": {
+            "taskId": 905592865,
+            "parentId": 120,
+            "name": "Name",
+            "itemId": 2,
+            "type": "Script",
+            "customerId": 100,
+            "applianceId": 1258095675,
+            "isReactive": false,
+            "isEnabled": true,
+            "deviceIds": [
+              "1234567890"
+            ]
+          },
+          "_links": {
+            "status": "/api/scheduled-tasks/905592865/status"
+          }
+        }
+      },
+      "TaskInfo": {
+        "type": "object",
+        "properties": {
+          "taskId": {
+            "type": "integer",
+            "description": "Id of the task.",
+            "format": "int32"
+          },
+          "parentId": {
+            "type": "integer",
+            "description": "The unique identifier of the parent task (if applicable), or null if there is no parent task.",
+            "format": "int32"
+          },
+          "name": {
+            "type": "string",
+            "description": "The name of the task."
+          },
+          "itemId": {
+            "type": "integer",
+            "description": "The unique identifier for the item associated with the task.",
+            "format": "int32"
+          },
+          "type": {
+            "type": "string",
+            "description": "The type of the task."
+          },
+          "customerId": {
+            "type": "integer",
+            "description": "The unique identifier of the customer associated with the task.",
+            "format": "int32"
+          },
+          "applianceId": {
+            "type": "integer",
+            "description": "The unique identifier of the appliance related to the task.",
+            "format": "int32"
+          },
+          "isReactive": {
+            "type": "boolean",
+            "description": "Indicates whether the task is reactive (true) or not (false)."
+          },
+          "isEnabled": {
+            "type": "boolean",
+            "description": "Indicates whether the task is enabled (true) or disabled (false)."
+          },
+          "deviceIds": {
+            "type": "array",
+            "description": "List of device IDs that this task is run on.",
+            "items": {
+              "type": "string",
+              "description": "List of device IDs that this task is run on."
+            }
+          }
+        },
+        "description": "Task information response.",
+        "example": {
+          "taskId": 905592865,
+          "parentId": 120,
+          "name": "Name",
+          "itemId": 2,
+          "type": "Script",
+          "customerId": 100,
+          "applianceId": 1258095675,
+          "isReactive": false,
+          "isEnabled": true,
+          "deviceIds": [
+            "1234567890"
+          ]
+        }
+      },
+      "ScheduledTaskAggregatedStatusResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/TaskAggregatedStatus"
+          },
+          "_links": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string",
+              "description": "Links to related endpoints."
+            },
+            "description": "Links to related endpoints."
+          }
+        },
+        "description": "Aggregated status response.",
+        "example": {
+          "data": {
+            "taskName": "Task Name",
+            "statusCounts": {
+              "Completed": 3,
+              "In Pending": 2
+            }
+          },
+          "_links": {
+            "details": "/api/scheduled-tasks/{taskId}/status/details"
+          }
+        }
+      },
+      "TaskAggregatedStatus": {
+        "type": "object",
+        "properties": {
+          "taskName": {
+            "type": "string",
+            "description": "Name of the task."
+          },
+          "statusCounts": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "integer",
+              "description": "Map of status counts where keys are status names and values are status counts.",
+              "format": "int32"
+            },
+            "description": "Map of status counts where keys are status names and values are status counts."
+          }
+        },
+        "description": "Aggregated status response.",
+        "example": {
+          "taskName": "Task Name",
+          "statusCounts": {
+            "Completed": 3,
+            "In Pending": 2
+          }
+        }
+      },
+      "DetailsResponse": {
+        "type": "object",
+        "properties": {
+          "taskId": {
+            "type": "integer",
+            "description": "ID of the task.",
+            "format": "int32"
+          },
+          "deviceId": {
+            "type": "integer",
+            "description": "ID of the device.",
+            "format": "int32"
+          },
+          "deviceName": {
+            "type": "string",
+            "description": "Name of the device."
+          },
+          "taskName": {
+            "type": "string",
+            "description": "Name of the task."
+          },
+          "status": {
+            "type": "string",
+            "description": "Status of the task."
+          },
+          "output": {
+            "type": "string",
+            "description": "Output of the task."
+          },
+          "message": {
+            "type": "string",
+            "description": "Message of the task."
+          },
+          "outputFileName": {
+            "type": "string",
+            "description": "Output file name."
+          }
+        },
+        "description": "Details response for a task.",
+        "example": {
+          "taskId": 9712342,
+          "deviceId": 2071979267,
+          "deviceName": "Device 1",
+          "taskName": "Create log file",
+          "status": "Success",
+          "output": "Task did not produce any output.",
+          "message": "Successful execution on remote device."
+        }
+      },
+      "ListResponseDetailsResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DetailsResponse"
+            }
+          },
+          "totalItems": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "ListResponseOrganizationUnit": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OrganizationUnit"
+            }
+          },
+          "totalItems": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "OrganizationUnit": {
+        "type": "object",
+        "properties": {
+          "orgUnitId": {
+            "type": "string",
+            "description": "The ID of the organization unit."
+          },
+          "orgUnitName": {
+            "type": "string",
+            "description": "The name of the organization unit."
+          },
+          "orgUnitType": {
+            "type": "string",
+            "description": "The type of the organization unit (SYSTEM, SO, CUSTOMER or SITE)."
+          },
+          "parentId": {
+            "type": "string",
+            "description": "The ID of the parent organization unit."
+          },
+          "city": {
+            "type": "string",
+            "description": "City where the organization unit is located."
+          },
+          "stateProv": {
+            "type": "string",
+            "description": "State or province where the organization unit is located."
+          },
+          "country": {
+            "type": "string",
+            "description": "Country where the organization unit is located."
+          },
+          "postalCode": {
+            "type": "string",
+            "description": "Postal code of the organization unit location."
+          },
+          "contactEmail": {
+            "type": "string",
+            "description": "Contact email for the organization unit."
+          }
+        },
+        "description": "Data object for organization unit.",
+        "example": {
+          "orgUnitId": "100",
+          "orgUnitName": "N-able",
+          "orgUnitType": "CUSTOMER",
+          "parentId": "50",
+          "city": "Ottawa",
+          "stateProv": "Ontario",
+          "country": "Canada",
+          "county": null,
+          "postalCode": "A1A 1A1",
+          "contactEmail": "admin@n-able.com"
+        }
+      },
+      "Health": {
+        "type": "object",
+        "properties": {
+          "currentTime": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "description": "Response for the server health.",
+        "example": {
+          "currentTime": "2023-09-27T15:43:16.793Z"
+        }
+      },
+      "Device": {
+        "type": "object",
+        "properties": {
+          "deviceId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "uri": {
+            "type": "string"
+          },
+          "remoteControlUri": {
+            "type": "string"
+          },
+          "sourceUri": {
+            "type": "string"
+          },
+          "longName": {
+            "type": "string"
+          },
+          "deviceClass": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "isProbe": {
+            "type": "boolean"
+          },
+          "osId": {
+            "type": "string"
+          },
+          "supportedOs": {
+            "type": "string"
+          },
+          "discoveredName": {
+            "type": "string"
+          },
+          "deviceClassLabel": {
+            "type": "string"
+          },
+          "supportedOsLabel": {
+            "type": "string"
+          },
+          "lastLoggedInUser": {
+            "type": "string"
+          },
+          "stillLoggedIn": {
+            "type": "string"
+          },
+          "licenseMode": {
+            "type": "string"
+          },
+          "customerId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "soName": {
+            "type": "string"
+          },
+          "customerName": {
+            "type": "string"
+          },
+          "siteName": {
+            "type": "string"
+          }
+        },
+        "description": "Response for list of devices.",
+        "example": {
+          "deviceId": 1299930810,
+          "uri": "52.141.77.215",
+          "remoteControlUri": "",
+          "sourceUri": "",
+          "longName": "WS_01-12091-001001",
+          "deviceClass": "Workstations - Windows",
+          "description": "Network device discovered using Asset Discovery - 1299930810",
+          "isProbe": false,
+          "osId": "winnt",
+          "supportedOs": "Microsoft Windows 7 Ultimate x64 Edition",
+          "discoveredName": "WS_01-12091-001001",
+          "deviceClassLabel": "Workstations - Windows",
+          "supportedOsLabel": "Microsoft Windows 7 Ultimate x64 Edition",
+          "lastLoggedInUser": "-",
+          "stillLoggedIn": "",
+          "licenseMode": "Professional",
+          "customerId": 12091,
+          "soName": "Service_Organization",
+          "customerName": "PERF_ALL_DEVICES_CUST_01",
+          "siteName": "PERF_ALL_DEVICES_SITE_0001"
+        }
+      },
+      "Links": {
+        "type": "object",
+        "properties": {
+          "firstPage": {
+            "type": "string"
+          },
+          "previousPage": {
+            "type": "string"
+          },
+          "nextPage": {
+            "type": "string"
+          },
+          "lastPage": {
+            "type": "string"
+          }
+        }
+      },
+      "QueryResponseDevice": {
+        "required": [
+          "_links"
+        ],
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Device"
+            }
+          },
+          "pageNumber": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "pageSize": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "itemCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalItems": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalPages": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "_links": {
+            "$ref": "#/components/schemas/Links"
+          },
+          "_warning": {
+            "type": "string"
+          }
+        }
+      },
+      "DeviceResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/Device"
+          },
+          "_links": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string",
+              "description": "Links to related endpoints."
+            },
+            "description": "Links to related endpoints."
+          }
+        }
+      },
+      "ListResponseTaskStatusResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TaskStatusResponse"
+            }
+          },
+          "totalItems": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "TaskStatusResponse": {
+        "type": "object",
+        "properties": {
+          "taskId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "taskName": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          }
+        }
+      },
+      "DeviceAssetInfoResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "object",
+                "description": "Asset Information about the device."
+              },
+              "description": "Asset Information about the device."
+            },
+            "description": "Asset Information about the device."
+          },
+          "_links": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string",
+              "description": "Links to related endpoints."
+            },
+            "description": "Links to related endpoints."
+          }
+        },
+        "description": "Represents a device asset info response.\nIt contains the asset information about the device in the form of following categories :\n1. os\n2. application\n3. computersystem\n4. networkadapter\n5. device\n6. processor\n\nThe above categories are classified as \"default\" categories and the fields under these ca",
+        "example": {
+          "os": {
+            "reportedos": "Microsoft Windows 10 Enterprise",
+            "osarchitecture": "64-bit",
+            "version": "10.0.19045"
+          },
+          "application": {
+            "list": [
+              {
+                "_index": 0,
+                "displayname": "Microsoft Visual C++ 2022 X64 Additional Runtime - 14.36.32532"
+              }
+            ]
+          },
+          "computersystem": {
+            "serialnumber": "None",
+            "netbiosname": "NCC-0625",
+            "model": "VMware7,1",
+            "totalphysicalmemory": "2147483648",
+            "manufacturer": "VMware, Inc."
+          },
+          "networkadapter": {
+            "list": [
+              {
+                "ipaddress": "10.120.207.82",
+                "_index": 0,
+                "dnsserver": "10.120.0.10, 10.220.0.10, 10.100.0.10",
+                "description": "vmxnet3 Ethernet Adapter",
+                "dhcpserver": null,
+                "macaddress": "00:50:56:87:23:5f",
+                "gateway": "10.120.207.1"
+              }
+            ]
+          },
+          "device": {
+            "longname": "NCC-0625",
+            "deleted": "false",
+            "lastlogin": "2024-01-11 12:07:47.908 -0500",
+            "deviceclass": "Workstations - Windows",
+            "deviceid": "1065910111",
+            "uri": "10.120.207.82"
+          },
+          "processor": {
+            "name": "Intel(R) Xeon(R) Gold 6252 CPU @ 2.10GHz",
+            "numberofcores": "1",
+            "numberofcpus": "1"
+          },
+          "_extra": {
+            "osfeatures": {
+              "list": [
+                {
+                  "_index": 0,
+                  "pvalue": "5.1.19041.1",
+                  "pkey": "PowerShellVersion"
+                },
+                {
+                  "_index": 1,
+                  "pvalue": "Microsoft.PowerShell.Diagnostics",
+                  "pkey": "PowerShell-SnapIn-0"
+                }
+              ]
+            },
+            "motherboard": {
+              "product": "440BX Desktop Reference Platform",
+              "serialnumber": "None",
+              "biosversion": "VMW71.00V.21100432.B64.2301110304",
+              "version": "None",
+              "manufacturer": "Intel Corporation"
+            }
+          }
+        }
+      },
+      "Customer": {
+        "type": "object",
+        "properties": {
+          "customerId": {
+            "type": "string",
+            "description": "The ID of the organization unit."
+          },
+          "customerName": {
+            "type": "string",
+            "description": "The name of the organization unit."
+          },
+          "orgUnitType": {
+            "type": "string",
+            "description": "The type of the organization unit (SYSTEM, SO, CUSTOMER or SITE)."
+          },
+          "parentId": {
+            "type": "string",
+            "description": "The ID of the parent organization unit."
+          },
+          "city": {
+            "type": "string",
+            "description": "City where the organization unit is located."
+          },
+          "stateProv": {
+            "type": "string",
+            "description": "State or province where the organization unit is located."
+          },
+          "country": {
+            "type": "string",
+            "description": "Country where the organization unit is located."
+          },
+          "postalCode": {
+            "type": "string",
+            "description": "Postal code of the organization unit location."
+          },
+          "contactEmail": {
+            "type": "string",
+            "description": "Contact email for the organization unit."
+          },
+          "county": {
+            "type": "string",
+            "description": "DEPRECATED: County where the organization unit is located."
+          },
+          "isSystem": {
+            "type": "boolean"
+          },
+          "isServiceOrg": {
+            "type": "boolean"
+          }
+        },
+        "description": "Data object for service customer.",
+        "example": {
+          "customerId": "100",
+          "customerName": "N-able",
+          "orgUnitType": "SO",
+          "parentId": "50",
+          "city": "Ottawa",
+          "stateProv": "Ontario",
+          "country": "Canada",
+          "county": null,
+          "postalCode": "A1A 1A1",
+          "contactEmail": "admin@n-able.com"
+        }
+      },
+      "ListResponseCustomer": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Customer"
+            }
+          },
+          "totalItems": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      }
+    }
+  }
+}
